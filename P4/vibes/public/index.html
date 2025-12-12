@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Share</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            color: #666;
+        }
+
+        .admin-badge {
+            background: #ffd700;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        button.danger {
+            background: #dc3545;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        button.danger:hover {
+            background: #c82333;
+        }
+
+        .article-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .article-item:last-child {
+            border-bottom: none;
+        }
+
+        .article-info {
+            flex: 1;
+        }
+
+        .article-url {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .article-url:hover {
+            text-decoration: underline;
+        }
+
+        .article-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .link-button {
+            color: #667eea;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Auth Screen -->
+        <div id="authScreen" class="card">
+            <h1>Article Share</h1>
+            <div id="authError" class="error hidden"></div>
+            
+            <div id="loginForm">
+                <h2>Login</h2>
+                <input type="text" id="loginUsername" placeholder="Username" />
+                <input type="password" id="loginPassword" placeholder="Password" />
+                <button onclick="login()">Login</button>
+                <p style="margin-top: 15px;">
+                    Don't have an account? 
+                    <button class="link-button" onclick="showRegister()">Register</button>
+                </p>
+            </div>
+
+            <div id="registerForm" class="hidden">
+                <h2>Register</h2>
+                <input type="text" id="registerUsername" placeholder="Username (3+ characters)" />
+                <input type="password" id="registerPassword" placeholder="Password (6+ characters)" />
+                <input type="password" id="registerConfirm" placeholder="Confirm Password" />
+                <button onclick="register()">Register</button>
+                <p style="margin-top: 15px;">
+                    Already have an account? 
+                    <button class="link-button" onclick="showLogin()">Login</button>
+                </p>
+            </div>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="appScreen" class="hidden">
+            <div class="card">
+                <div class="header">
+                    <div>
+                        <h1>Article Share</h1>
+                        <div class="user-info">
+                            Logged in as: <strong id="currentUser"></strong>
+                            <span id="adminBadge" class="admin-badge hidden">ADMIN</span>
+                        </div>
+                    </div>
+                    <button class="secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Post New Article</h2>
+                <div id="postError" class="error hidden"></div>
+                <div id="postSuccess" class="success hidden"></div>
+                <input type="url" id="articleUrl" placeholder="https://example.com/article" />
+                <input type="text" id="articleTitle" placeholder="Article Title (optional)" />
+                <button onclick="postArticle()">Post Article</button>
+            </div>
+
+            <div class="card">
+                <h2>Shared Articles</h2>
+                <div id="articlesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let token = localStorage.getItem('token');
+
+        // Initialize app
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                currentUser = payload;
+                showApp();
+                loadArticles();
+            } catch (e) {
+                logout();
+            }
+        }
+
+        function showError(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+
+        function showSuccess(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+        }
+
+        function showRegister() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+        }
+
+        function showApp() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('appScreen').classList.remove('hidden');
+            document.getElementById('currentUser').textContent = currentUser.username;
+            if (currentUser.isAdmin) {
+                document.getElementById('adminBadge').classList.remove('hidden');
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError('authError', data.error);
+                    return;
+                }
+
+                token = data.token;
+                currentUser = data.user;
+                localStorage.setItem('token', token);
+                showApp();
+                loadArticles();
+            } catch (error) {
+                showError('authError', 'Login failed');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirm = document.getElementById('registerConfirm').value;
+
+            if (password !== confirm) {
+                showError('authError', 'Passwords do not match');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError('authError', data.error);
+                    return;
+                }
+
+                token = data.token;
+                currentUser = data.user;
+                localStorage.setItem('token', token);
+                showApp();
+                loadArticles();
+            } catch (error) {
+                showError('authError', 'Registration failed');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            currentUser = null;
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('appScreen').classList.add('hidden');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        async function loadArticles() {
+            try {
+                const response = await fetch('/api/articles', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const articles = await response.json();
+                displayArticles(articles);
+            } catch (error) {
+                console.error('Error loading articles:', error);
+            }
+        }
+
+        function displayArticles(articles) {
+            const container = document.getElementById('articlesList');
+            
+            if (articles.length === 0) {
+                container.innerHTML = '<div class="empty-state">No articles posted yet. Be the first!</div>';
+                return;
+            }
+
+            container.innerHTML = articles.map(article => `
+                <div class="article-item">
+                    <div class="article-info">
+                        <a href="${article.url}" target="_blank" class="article-url">
+                            ${article.title || article.url}
+                        </a>
+                        <div class="article-meta">
+                            Posted by ${article.username} on ${new Date(article.created_at).toLocaleString()}
+                        </div>
+                    </div>
+                    ${canDelete(article) ? `
+                        <button class="danger" onclick="deleteArticle(${article.id})">Delete</button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function canDelete(article) {
+            return article.user_id === currentUser.id || currentUser.isAdmin;
+        }
+
+        async function postArticle() {
+            const url = document.getElementById('articleUrl').value;
+            const title = document.getElementById('articleTitle').value;
+
+            if (!url) {
+                showError('postError', 'URL is required');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/articles', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ url, title })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError('postError', data.error);
+                    return;
+                }
+
+                showSuccess('postSuccess', 'Article posted successfully!');
+                document.getElementById('articleUrl').value = '';
+                document.getElementById('articleTitle').value = '';
+                loadArticles();
+            } catch (error) {
+                showError('postError', 'Failed to post article');
+            }
+        }
+
+        async function deleteArticle(id) {
+            if (!confirm('Are you sure you want to delete this article?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/articles/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    alert(data.error);
+                    return;
+                }
+
+                loadArticles();
+            } catch (error) {
+                alert('Failed to delete article');
+            }
+        }
+    </script>
+</body>
+</html>

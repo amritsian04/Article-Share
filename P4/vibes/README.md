@@ -1,7 +1,5 @@
 # Article Share - Vibecoded Implementation
 
-This implementation was created using AI-assisted development (simulated Replit vibecoding).
-
 ## Installation
 
 ```bash

@@ -51,3 +51,4 @@ The frontend will start on http://localhost:3000 and automatically open in your 
 
 - **Username:** admin
 - **Password:** admin
+

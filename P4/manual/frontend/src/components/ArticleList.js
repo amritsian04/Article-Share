@@ -18,7 +18,9 @@ function ArticleList({ articles, currentUserId, isAdmin, onDelete }) {
           No articles posted yet. Be the first to share!
         </p>
       ) : (
-        articles.map((article) => (
+        articles
+          .filter(article => article && article.url)
+          .map((article) => (
           <div key={article.id} className="article-item">
             <div className="article-info">
               <a 

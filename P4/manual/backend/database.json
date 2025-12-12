@@ -6,9 +6,59 @@
       "password_hash": "$2a$10$T6aWZuFnt2nfVT33mXhjL.4eUX9dyUh30nlzY840WkEcBZ/.IW/Uy",
       "is_admin": 1,
       "created_at": "2025-12-12T05:08:57.357Z"
+    },
+    {
+      "id": 2,
+      "username": "testuser",
+      "password_hash": "$2a$10$XmOMHgtm9fbm17MlLV5VpeWlalIyF2T5zVqY4.ab/gPzVptgzd8mC",
+      "is_admin": 0,
+      "created_at": "2025-12-12T20:02:21.562Z"
+    },
+    {
+      "id": 3,
+      "username": "testuser1",
+      "password_hash": "$2a$10$C4D6Q9/UYe6NuBJd.CodV.6.U2q5bPOVVlEnzVSHwtX.d37rJnK/e",
+      "is_admin": 0,
+      "created_at": "2025-12-12T20:40:36.666Z"
     }
   ],
-  "articles": [],
-  "nextUserId": 2,
-  "nextArticleId": 1
+  "articles": [
+    {
+      "id": 1,
+      "url": "https://example.com",
+      "title": "Divitar",
+      "user_id": 2,
+      "created_at": "2025-12-12T20:04:01.070Z"
+    },
+    {
+      "id": 2,
+      "url": "https://google.com",
+      "title": "Google",
+      "user_id": 2,
+      "created_at": "2025-12-12T20:32:16.548Z"
+    },
+    {
+      "id": 4,
+      "url": "https://www.google.com",
+      "title": "Goog",
+      "user_id": 2,
+      "created_at": "2025-12-12T20:37:18.799Z"
+    },
+    {
+      "id": 6,
+      "url": "https://www.google.com",
+      "title": "gg",
+      "user_id": 2,
+      "created_at": "2025-12-12T20:46:13.681Z"
+    },
+    {
+      "id": 7,
+      "url": "https://www.google.com",
+      "title": "gggg",
+      "user_id": 3,
+      "created_at": "2025-12-12T20:46:45.083Z"
+    }
+  ],
+  "nextUserId": 4,
+  "nextArticleId": 8
 }

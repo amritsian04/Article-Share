@@ -60,7 +60,7 @@ function App() {
   };
 
   const handleArticleCreated = (newArticle) => {
-    setArticles([newArticle, ...articles]);
+    setArticles(prev => [newArticle, ...prev]);
   };
 
   const handleArticleDeleted = async (articleId) => {

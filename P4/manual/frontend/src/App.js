@@ -12,7 +12,6 @@ function App() {
   const [showRegister, setShowRegister] = useState(false);
   const [error, setError] = useState('');
 
-  // Set up axios interceptor for auth token
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -25,7 +24,6 @@ function App() {
 
   const fetchUser = async () => {
     try {
-      // Decode token to get user info (simple approach)
       const payload = JSON.parse(atob(token.split('.')[1]));
       setUser({
         id: payload.id,

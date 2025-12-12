@@ -10,13 +10,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Database setup
 const db = new sqlite3.Database('./articles.db', (err) => {
   if (err) {
     console.error('Database connection error:', err);
@@ -26,10 +24,8 @@ const db = new sqlite3.Database('./articles.db', (err) => {
   }
 });
 
-// Initialize database tables
 function initDatabase() {
   db.serialize(() => {
-    // Users table
     db.run(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,7 +36,6 @@ function initDatabase() {
       )
     `);
 
-    // Articles table
     db.run(`
       CREATE TABLE IF NOT EXISTS articles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,7 +48,6 @@ function initDatabase() {
       )
     `);
 
-    // Create admin user
     db.get('SELECT * FROM users WHERE username = ?', ['admin'], (err, row) => {
       if (!row) {
         const hashedPassword = bcrypt.hashSync('admin', 10);
@@ -73,7 +67,6 @@ function initDatabase() {
   });
 }
 
-// Auth middleware
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -91,9 +84,7 @@ function authenticateToken(req, res, next) {
   }
 }
 
-// Routes
 
-// Register
 app.post('/api/register', async (req, res) => {
   const { username, password } = req.body;
 
@@ -109,16 +100,13 @@ app.post('/api/register', async (req, res) => {
     return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
 
-  // Check if user exists
   db.get('SELECT * FROM users WHERE username = ?', [username], async (err, row) => {
     if (row) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
-    // Hash password
     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    // Insert user
     db.run(
       'INSERT INTO users (username, password) VALUES (?, ?)',
       [username, hashedPassword],
@@ -142,7 +130,6 @@ app.post('/api/register', async (req, res) => {
   });
 });
 
-// Login
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -173,7 +160,6 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// Get all articles
 app.get('/api/articles', authenticateToken, (req, res) => {
   db.all('SELECT * FROM articles ORDER BY created_at DESC', [], (err, articles) => {
     if (err) {
@@ -183,7 +169,6 @@ app.get('/api/articles', authenticateToken, (req, res) => {
   });
 });
 
-// Create article
 app.post('/api/articles', authenticateToken, (req, res) => {
   const { url, title } = req.body;
   const userId = req.user.id;
@@ -193,7 +178,6 @@ app.post('/api/articles', authenticateToken, (req, res) => {
     return res.status(400).json({ error: 'URL is required' });
   }
 
-  // Basic URL validation
   const urlPattern = /^https?:\/\/.+/;
   if (!urlPattern.test(url)) {
     return res.status(400).json({ error: 'Invalid URL format' });
@@ -217,7 +201,6 @@ app.post('/api/articles', authenticateToken, (req, res) => {
   );
 });
 
-// Delete article
 app.delete('/api/articles/:id', authenticateToken, (req, res) => {
   const articleId = req.params.id;
   const userId = req.user.id;
@@ -228,7 +211,6 @@ app.delete('/api/articles/:id', authenticateToken, (req, res) => {
       return res.status(404).json({ error: 'Article not found' });
     }
 
-    // Check if user owns article or is admin
     if (article.user_id !== userId && !isAdmin) {
       return res.status(403).json({ error: 'Not authorized' });
     }
@@ -242,7 +224,6 @@ app.delete('/api/articles/:id', authenticateToken, (req, res) => {
   });
 });
 
-// Serve index.html for all other routes (SPA)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

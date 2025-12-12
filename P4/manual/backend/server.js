@@ -9,37 +9,30 @@ const articleRoutes = require('./routes/articles');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Security middleware
-app.use(helmet()); // Security headers
+app.use(helmet()); 
 app.use(cors({
-  origin: 'http://localhost:3000', // React app
+  origin: 'http://localhost:3000', 
   credentials: true
 }));
 
-// Rate limiting to prevent brute force
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100 
 });
 app.use(limiter);
 
-// Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Initialize database and start server
 initDatabase().then(() => {
-  // Make db helper available to routes
   app.use((req, res, next) => {
     req.db = { prepare };
     next();
   });
 
-  // Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/articles', articleRoutes);
 
-  // Error handling middleware
   app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong!' });

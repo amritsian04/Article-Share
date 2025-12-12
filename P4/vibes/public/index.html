@@ -180,7 +180,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Auth Screen -->
         <div id="authScreen" class="card">
             <h1>Article Share</h1>
             <div id="authError" class="error hidden"></div>
@@ -209,7 +208,6 @@
             </div>
         </div>
 
-        <!-- Main App Screen -->
         <div id="appScreen" class="hidden">
             <div class="card">
                 <div class="header">
@@ -244,7 +242,6 @@
         let currentUser = null;
         let token = localStorage.getItem('token');
 
-        // Initialize app
         if (token) {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));

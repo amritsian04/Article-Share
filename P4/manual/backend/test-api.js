@@ -2,7 +2,6 @@
 
 const http = require('http');
 
-// Test login
 function testLogin() {
   const data = JSON.stringify({
     username: 'admin',
@@ -42,7 +41,6 @@ function testLogin() {
   req.end();
 }
 
-// Wait a bit for server to start, then test
 setTimeout(testLogin, 1000);
 
 console.log('Testing admin login...');

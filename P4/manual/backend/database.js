@@ -16,7 +16,6 @@ function loadDatabase() {
     const data = fs.readFileSync(DB_PATH, 'utf8');
     db = JSON.parse(data);
   } else {
-    // Create admin user
     const adminPassword = 'admin';
     const hash = bcrypt.hashSync(adminPassword, 10);
     db.users.push({
@@ -40,11 +39,9 @@ async function initDatabase() {
   return db;
 }
 
-// Helper functions to match sqlite3 API
 function prepare(query) {
   return {
     get: function(...params) {
-      // Handle SELECT queries
       if (query.includes('SELECT') && query.includes('users') && query.includes('WHERE username')) {
         const username = params[0];
         return db.users.find(u => u.username === username) || null;
@@ -67,7 +64,6 @@ function prepare(query) {
       return null;
     },
     all: function(...params) {
-      // Handle SELECT all articles with username
       if (query.includes('SELECT articles.*, users.username')) {
         return db.articles.map(article => {
           const user = db.users.find(u => u.id === article.user_id);
@@ -77,7 +73,6 @@ function prepare(query) {
       return [];
     },
     run: function(...params) {
-      // Handle INSERT for users
       if (query.includes('INSERT INTO users')) {
         const [username, password_hash] = params;
         const newUser = {
@@ -91,7 +86,6 @@ function prepare(query) {
         saveDatabase();
         return { lastInsertRowid: newUser.id };
       }
-      // Handle INSERT for articles
       if (query.includes('INSERT INTO articles')) {
         const [url, title, user_id] = params;
         const newArticle = {
@@ -105,7 +99,6 @@ function prepare(query) {
         saveDatabase();
         return { lastInsertRowid: newArticle.id };
       }
-      // Handle DELETE for articles
       if (query.includes('DELETE FROM articles')) {
         const id = parseInt(params[0]);
         db.articles = db.articles.filter(a => a.id !== id);
